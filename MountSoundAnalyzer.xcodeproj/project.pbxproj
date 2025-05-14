@@ -29,9 +29,22 @@
 		99F5D1782DD3218B004ED21B /* MountSoundAnalyzerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MountSoundAnalyzerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		99C32CD72DD4AD7D00094554 /* Exceptions for "MountSoundAnalyzer" folder in "MountSoundAnalyzer" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 99F5D15F2DD32189004ED21B /* MountSoundAnalyzer */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		99F5D1622DD32189004ED21B /* MountSoundAnalyzer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				99C32CD72DD4AD7D00094554 /* Exceptions for "MountSoundAnalyzer" folder in "MountSoundAnalyzer" target */,
+			);
 			path = MountSoundAnalyzer;
 			sourceTree = "<group>";
 		};
@@ -398,6 +411,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MountSoundAnalyzer/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -423,6 +438,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MountSoundAnalyzer/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
