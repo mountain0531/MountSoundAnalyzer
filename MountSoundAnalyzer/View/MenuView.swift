@@ -8,22 +8,13 @@
 import SwiftUI
 
 struct MenuView: View {
-    private var menuNameArray = ["Menu1", "Menu2", "Menu3"]
-    
+    @Environment(\.openWindow) private var openWindow
     var body: some View {
-        ForEach (menuNameArray, id: \.self) { menuName in
-            Button {
-                
-            } label: {
-                Image(systemName: "person.fill")
-                Text(menuName)
-            }
+        Button("Open") {
+            openWindow(id: "test")
+            NSApp.activate(ignoringOtherApps: true)
         }
-        Divider()
-        Button("Settings...") {
-            
-        }
-        .keyboardShortcut(",")
+        .keyboardShortcut("O")
         Button("About MountSoundAnalyzer") {
             showAbout()
         }

@@ -98,12 +98,12 @@ struct TestView: View {
 func ensureMicPermission(completion: @escaping (Bool) -> Void) {
     switch AVCaptureDevice.authorizationStatus(for: .audio) {
     case .authorized:
-        completion(true)                        // すでに許可
+        completion(true)
     case .notDetermined:
         AVCaptureDevice.requestAccess(for: .audio) { granted in
             DispatchQueue.main.async { completion(granted) }
         }
-    default:                                   // .denied / .restricted
+    default:
         completion(false)
     }
 }

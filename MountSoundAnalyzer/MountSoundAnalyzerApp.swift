@@ -9,19 +9,16 @@ import SwiftUI
 
 @main
 struct MountSoundAnalyzerApp: App {
-//    var body: some Scene {
-//        MenuBarExtra {
-//            MenuView()
-//        } label: {
-//            Image(systemName: "message.fill")
-//            Text("10件")
-//        }
-//    }
     var body: some Scene {
-        WindowGroup {
+        MenuBarExtra {
+            MenuView()
+        } label: {
+            Image(systemName: "hifispeaker.fill")
+        }
+        Window("MountSoundAnalyzer", id: "test") {
             TestView()
         }
-            // Core Audio は録音扱いなのでマイク権限を Info.plist に追加:
-            // NSMicrophoneUsageDescription = "Sound capture for spectrum analyzer"
+        .defaultSize(width: 480, height: 320)
+        .defaultPosition(.topTrailing)
     }
 }
