@@ -10,11 +10,18 @@ import Accelerate
 import AVFoundation
 
 struct TestView: View {
+    @StateObject private var devModel = AudioDeviceModel()
     @State private var capture: AudioCapture?
     @State private var level : Float = -120
 
     var body: some View {
         VStack(spacing: 20) {
+            Picker("Target Device", selection: $devModel.selectedName) {
+                            ForEach(devModel.devices, id: \.name) { item in
+                                Text(item.name).tag(item.name)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
             Text(String(format: "%.1f dBFS", level))
                 .font(.title2)
                 .monospacedDigit()
@@ -42,13 +49,30 @@ struct TestView: View {
             }
         }
         .padding()
+        .onChange(of: devModel.selectedName) { newName in
+            guard
+                let cap = capture,
+                let newID = devModel.devices.first(where: { $0.name == newName })?.id
+            else
+            {
+                return
+            }
+            try? cap.changeDevice(newID: newID)
+            }
     }
     
     private func startCapture()
     {
+        guard
+            let id = devModel.devices
+                        .first(where: { $0.name == devModel.selectedName })?.id
+        else
+        {
+            return
+        }
         do
         {
-            let cap = try AudioCapture(deviceName: "BlackHole 64ch")
+            let cap = try AudioCapture(deviceID: id)
             cap.sampleHandler = { samples, frames, ch in
                 DispatchQueue.main.async {
                     level = rms(samples, frames * ch)

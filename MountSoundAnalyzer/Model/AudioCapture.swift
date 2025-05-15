@@ -72,12 +72,12 @@ final class AudioCapture
     }
     
     // MARK: Initialize / Deinitialize
-    init(deviceName: String,
+    init(deviceID: AudioDeviceID,
          handler: SampleHandler? = nil)
     throws
     {
         self.sampleHandler = handler
-        self.deviceID = try Self.lookUpDeviceID(name: deviceName)
+        self.deviceID = deviceID
         self.audioUnit = try Self.makeAudioUnit(deviceID: deviceID, ref: self)
     }
     
@@ -115,10 +115,9 @@ final class AudioCapture
         try AudioOutputUnitStop(au).check()
     }
     
-    func changeDevice(name: String)
+    func changeDevice(newID: AudioDeviceID)
     throws
     {
-        let newID = try Self.lookUpDeviceID(name: name)
         guard
             let au = audioUnit
         else
@@ -143,6 +142,68 @@ final class AudioCapture
         try start()
         
         deviceID = newID
+    }
+    
+    static func listOutputDevices()
+    throws -> [(String, AudioDeviceID)]
+    {
+        var size: UInt32 = 0
+        var addr = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDevices,
+                                              mScope: kAudioObjectPropertyScopeGlobal,
+                                              mElement: kAudioObjectPropertyElementMain)
+        try AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject),
+                                           &addr,
+                                           0,
+                                           nil,
+                                           &size).check()
+
+        let ids = UnsafeMutableBufferPointer<AudioDeviceID>.allocate(capacity: Int(size) / MemoryLayout<AudioDeviceID>.size)
+        defer { ids.deallocate() }
+
+        try AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject),
+                                       &addr,
+                                       0,
+                                       nil,
+                                       &size,
+                                       ids.baseAddress!).check()
+
+        var results: [(String, AudioDeviceID)] = []
+        for id in ids
+        {
+            var streamsSize: UInt32 = 0
+            var strAddr = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreams,
+                                                     mScope: kAudioDevicePropertyScopeOutput,
+                                                     mElement: kAudioObjectPropertyElementMain)
+            if
+                AudioObjectGetPropertyDataSize(id, &strAddr, 0, nil, &streamsSize) != noErr
+            {
+                continue
+            }
+            
+            var nSize: UInt32 = 0
+            var nameAddr = AudioObjectPropertyAddress(mSelector: kAudioObjectPropertyName,
+                                                      mScope: kAudioObjectPropertyScopeGlobal,
+                                                      mElement: kAudioObjectPropertyElementMain)
+            AudioObjectGetPropertyDataSize(id, &nameAddr, 0, nil, &nSize)
+            var cfName = "" as CFString
+            AudioObjectGetPropertyData(id, &nameAddr, 0, nil, &nSize, &cfName)
+            results.append((cfName as String, id))
+        }
+        return results.sorted { $0.0 < $1.0 }
+    }
+    
+    static func listLoopbackCapableDevices()
+    throws -> [(String, AudioDeviceID)]
+    {
+        try listOutputDevices().filter
+        {
+            _, id in
+            var size: UInt32 = 0
+            var addr = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreams,
+                                                  mScope: kAudioDevicePropertyScopeInput,
+                                                  mElement: kAudioObjectPropertyElementMain)
+            return AudioObjectGetPropertyDataSize(id, &addr, 0, nil, &size) == noErr && size > 0
+        }
     }
     
     private static func makeAudioUnit(
@@ -225,48 +286,6 @@ final class AudioCapture
         
         try AudioUnitInitialize(au).check()
         return au
-    }
-    
-    private static func lookUpDeviceID(name: String)
-    throws -> AudioDeviceID
-    {
-        var size: UInt32 = 0
-        var addr = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDevices,
-                                              mScope: kAudioObjectPropertyScopeGlobal,
-                                              mElement: kAudioObjectPropertyElementMain)
-
-        try AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject),
-                                            &addr,
-                                            0,
-                                            nil,
-                                            &size).check()
-
-        let count = Int(size) / MemoryLayout<AudioDeviceID>.size
-        var ids   = [AudioDeviceID](repeating: 0, count: count)
-
-        try AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject),
-                                       &addr,
-                                       0,
-                                       nil,
-                                       &size,
-                                       &ids).check()
-
-        for id in ids
-        {
-            var nSize: UInt32 = 0
-            var nAddr = AudioObjectPropertyAddress(mSelector: kAudioObjectPropertyName,
-                                                   mScope: kAudioObjectPropertyScopeGlobal,
-                                                   mElement: kAudioObjectPropertyElementMain)
-            try AudioObjectGetPropertyDataSize(id, &nAddr, 0, nil, &nSize).check()
-            var cfName = "" as CFString
-            try AudioObjectGetPropertyData(id, &nAddr, 0, nil, &nSize, &cfName).check()
-            if
-                (cfName as String) == name
-            {
-                return id
-            }
-        }
-        throw CaptureError.deviceNotFound
     }
 }
 
