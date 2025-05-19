@@ -19,9 +19,9 @@ final class AudioCapture
     }
     // MARK: TypeAlias
     typealias SampleHandler =
-    (_ samples: UnsafePointer<Float>,
-     _ frames: UInt32,
-     _ channels: UInt32) -> Void
+    (_ left: UnsafePointer<Float>,
+     _ right: UnsafePointer<Float>,
+     _ frames: UInt32) -> Void
     
     // MARK: Public
     var sampleHandler: SampleHandler?
@@ -63,10 +63,13 @@ final class AudioCapture
         if
             let handler = cap.sampleHandler
         {
-            let buf = bufList[0]  // ch 0
-            handler(buf.mData!.assumingMemoryBound(to: Float.self),
-                    nFrames,
-                    UInt32(bufList.count))
+            let lPtr = bufList[0].mData!.assumingMemoryBound(to: Float.self)
+            let rPtr = (bufList.count > 1)
+                       ? bufList[1].mData!.assumingMemoryBound(to: Float.self)
+                       : lPtr
+            handler(lPtr,
+                    rPtr,
+                    nFrames)
         }
         return noErr
     }

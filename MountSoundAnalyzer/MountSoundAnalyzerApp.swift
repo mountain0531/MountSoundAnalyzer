@@ -15,8 +15,8 @@ struct MountSoundAnalyzerApp: App {
         } label: {
             Image(systemName: "hifispeaker.fill")
         }
-        Window("MountSoundAnalyzer", id: "test") {
-            TestView()
+        Window("MountSoundAnalyzer", id: "main") {
+            MainView()
         }
         .defaultSize(width: 480, height: 320)
         .defaultPosition(.topTrailing)
