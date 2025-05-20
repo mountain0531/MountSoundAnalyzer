@@ -61,9 +61,13 @@ struct MainView: View
                 }
             }
                 .frame(maxHeight: .infinity, alignment: .leading)
-            RMSView(rmsL: $rmsL, rmsR: $rmsR)
-            SpectrumView(spectrum: $spectrum)
-                .frame(height: 200)
+            HStack(alignment: .bottom, spacing: 8)
+            {
+                SpectrumView(spectrum: $spectrum)
+                    .frame(height: 300)
+                RMSView(rmsL: $rmsL, rmsR: $rmsR)
+                    .frame(width: 150, height: 400)
+            }
         }
             .padding()
             .onChange(of: devModel.selectedName)
