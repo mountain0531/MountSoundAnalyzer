@@ -16,8 +16,8 @@ struct SpectrumView: View {
 
     private let marginL:  CGFloat = 40
     private let marginR:  CGFloat = 10
-    private let marginT:  CGFloat = 10
-    private let marginB:  CGFloat = 30
+    private let marginT:  CGFloat = 30
+    private let marginB:  CGFloat = 40
     private let axisColor = Color.gray.opacity(0.35)
 
     var body: some View
@@ -62,6 +62,16 @@ struct SpectrumView: View {
                     ctx.draw(lbl,
                              at: CGPoint(x: marginL - 4, y: yPlot),
                              anchor: .trailing)
+                    if
+                        db == dbCeil
+                    {
+                        let unitLbl = Text("[dB]")
+                            .font(.caption2)
+                            .foregroundStyle(.white)
+                        ctx.draw(unitLbl,
+                                 at: CGPoint(x: marginL - 4, y: yPlot - 18),
+                                 anchor: .trailing)
+                    }
                 }
 
                 let freqTicks: [Double] = [50,
@@ -94,6 +104,16 @@ struct SpectrumView: View {
                     ctx.draw(lbl,
                              at: CGPoint(x: xPlot, y: plotOrigin.y + plotH + 6),
                              anchor: .top)
+                    if
+                        f == 20_000
+                    {
+                        let unitLbl = Text("[Hz]")
+                            .font(.caption2)
+                            .foregroundStyle(.white)
+                        ctx.draw(unitLbl,
+                                 at: CGPoint(x: xPlot, y: plotOrigin.y + plotH + 24),
+                                 anchor: .top)
+                    }
                 }
 
                 var path = Path()
